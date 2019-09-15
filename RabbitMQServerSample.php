@@ -27,7 +27,7 @@ function request_processor($req){
 		"message" => "Server received request and processed it");
 }
 
-$server = new rabbitMQServer("rabbitMQSample.ini", "sampleServer");
+$server = new rabbitMQServer("testRabbitMQ.ini", "sampleServer");
 
 echo "Rabbit MQ Server Start" . PHP_EOL;
 $server->process_requests('request_processor');
