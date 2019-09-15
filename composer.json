@@ -1,0 +1,13 @@
+{
+    "name": "matt/it490",
+    "type": "Something-Fun",
+    "authors": [
+        {
+            "name": "MattToegel",
+            "email": "matthew.toegel@njit.edu"
+        }
+    ],
+    "require": {
+        "php-amqplib/php-amqplib": "^2.10"
+    }
+}
