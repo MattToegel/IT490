@@ -65,7 +65,7 @@ class rabbitMQServer
 				$conn = $this->get_connection();
 				$channel = $conn->channel();
 				$msg = new AMQPMessage(
-					(string)$response,
+					(string)json_encode($response),
 					array('correlation_id'=>$req->get('correlation_id'))
 				);
 				echo "Replying to " . $req->get('reply_to') . "\n";
