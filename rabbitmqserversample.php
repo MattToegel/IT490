@@ -13,7 +13,7 @@ function request_processor($req){
 	echo "Received Request".PHP_EOL;
 	echo "<pre>" . var_dump($req) . "</pre>";
 	if(!isset($req['type'])){
-		return "Error: unsupported message type";
+		return __FILE__ . ".Error: unsupported message type";
 	}
 	//Handle message type
 	$type = $req['type'];
