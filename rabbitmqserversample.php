@@ -15,7 +15,7 @@ function doEcho($req){
 }
 function request_processor($req){
 	echo "Received Request".PHP_EOL;
-	echo "Request[" . $req . "]\n<br>";
+	echo "Request[" . $req . "]\n<br>"; 
 	echo "<pre>" . var_dump($req) . "</pre>";
 	if(!isset($req['type'])){
 		return __FILE__ . ".Error: unsupported message type";
