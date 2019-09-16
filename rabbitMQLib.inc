@@ -155,7 +155,7 @@ class rabbitMQClient
 	}
 	function process_response($response){ 
 		$uid = $response->get('correlation_id');
-		if (!isset($this->response_queue[$uid]))
+		if (!isset($this->response_queue[$uid])){
 		  echo  "unknown uid\n";
 		  return true;
 		}
