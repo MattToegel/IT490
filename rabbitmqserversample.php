@@ -9,6 +9,7 @@ function login($user,$pass){
 	return true;
 }
 function doEcho($req){
+	echo "doing echo\n";
 	$req['message'] = "Echo " . $req['message'];
 	return $req;
 }
@@ -20,6 +21,7 @@ function request_processor($req){
 	}
 	//Handle message type
 	$type = $req['type'];
+	echo "Received type: " . $type;
 	switch($type){
 		case "login":
 			return login($req['username'], $req['password']);
