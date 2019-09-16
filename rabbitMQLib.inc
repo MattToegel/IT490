@@ -110,7 +110,8 @@ echo "$this->exchange";
 			
 			$channel->queue_declare($this->queue);
 			$channel->queue_bind($this->queue,$this->exchange);
-			$channel->basic_consume($this->queue, $this->routing_key, false, false, true, false, array($this, 'process_message'));
+			$channel->basic_consume($this->queue, $this->routing_key, 
+			false, false, false, false, array($this, 'process_message'));
 			/*$this->conn_queue = new AMQPQueue($channel);
 			$this->conn_queue->setName($this->queue);
 			$this->conn_queue->bind($exchange->getName(),$this->routing_key);
@@ -199,7 +200,7 @@ class rabbitMQClient
 			$channel->basic_publish($msg, $this->exchange, $this->routing_key);
 			$this->response_queue[$uid] = "waiting";
 			$channel->basic_consume($this->queue, $this->routing_key . ".response",
-			false, false, true, false, array($this, 'process_response'));
+			false, false, false, false, array($this, 'process_response'));
 			$response = $this->response_queue[$uid];
 			unset($this->response_queue[$uid]);
 			return $response;
