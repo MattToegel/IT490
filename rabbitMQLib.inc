@@ -45,15 +45,20 @@ echo "<pre>" . var_dump($this->machine) . "</pre>";
 	function process_message($msg){
 		echo "processing message \n";
 		// send the ack to clear the item from the queue
-		if ($msg->getRoutingKey() !== "*"){
+		/*if ($msg->delivery_info['routing_key'] !== "*"){
+			echo "routing_key: " . $msg->delivery_info['routing_key'];
+			
 			return;
-		}
-		$this->conn_queue->ack($msg->getDeliveryTag());
+		}*/
+		$deliveryTag = $msg->get('delivery_tag');
+		echo 'Delivery tag: ' . $deliveryTag;
+		$this->conn_queue->basic_ack($deliveryTag);
 		try{
-			if ($msg->getReplyTo()){
+			
+			if ($msg->get('reply_to')){
 				// message wants a response
 				// process request
-				$body = $msg->getBody();
+				$body = $msg->body;
 				$payload = json_decode($body, true);
 				$response;
 				if (isset($this->callback)){
@@ -65,12 +70,12 @@ echo "<pre>" . var_dump($this->machine) . "</pre>";
 					(string)"Echo: " . $req->body,
 					array('correlation_id'=>$req->get('correlation_id'))
 				);
-				$req->delivery_info['channe']->basic_publish(
+				$req->delivery_info['channel']->basic_publish(
 					$msg,
 					'',
 					$req->get('reply_to')
 				);
-				$req->delivery_info['channe']->basic_ack(
+				$req->delivery_info['channel']->basic_ack(
 					$req->delivery_info['delivery_tag']
 				);
 				//$replykey = $this->queue.".response";
@@ -96,18 +101,19 @@ echo "<pre>" . var_dump($this->machine) . "</pre>";
 		try{
 			echo "processing request\n";
 			$this->callback = $callback;
-      		$conn = $this->get_connection();
+	      		$conn = $this->get_connection();
 			$channel = $conn->channel();
-			$channel->queue_declare($this->queue, false, false, false, false);
+			$this->conn_queue = $channel;
+			$channel->queue_declare($this->queue, false, false, false, true);
 			echo "Consuming queue\n";
 			$channel->basic_qos(null, 1, null);
 			$channel->basic_consume($this->queue, '', 
-			false, false, false, false, array($this, 'process_message'));
+			false, true, false, false, array($this, 'process_message'));
 			
 			// Loop as long as the channel has callbacks registered
-			while (count($channel->callbacks) && $channel->is_consuming())
+			while (count($this->conn_queue->callbacks) && $this->conn_queue->is_consuming())
 			{
-				$channel->wait();
+				$this->conn_queue->wait();
 			}
 		}
 		catch (Exception $e)
@@ -176,6 +182,13 @@ class rabbitMQClient
 		$conn = $this->get_connection();
 		$this->channel = $conn->channel();
 		$this->channel->queue_declare($this->queue . ".response", false, false, false, true);
+		/*list($this->callback_queue, ,) = $this->channel->queue_declare(
+				"",
+				false,
+				false,
+				true,
+				false
+			);*/
 		$this->channel->basic_consume($this->queue . ".response", '', false, true, false, false,
 		array($this, 'process_response'));
 	}
@@ -197,10 +210,11 @@ class rabbitMQClient
 			);
 			
 			echo "sending message\n";
+		
 			$this->channel->basic_publish($msg, '', $this->queue);
 			$this->response_queue[$uid] = "waiting";
-			while(1$this->response_queue[$uid]){
-				$channel->wait();
+			while($this->response_queue[$uid] === "waiting"){
+				$this->channel->wait();
 			}
 			$response = $this->response_queue[$uid];
 			unset($this->response_queue[$uid]);
