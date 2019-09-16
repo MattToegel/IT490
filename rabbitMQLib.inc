@@ -43,6 +43,7 @@ echo "<pre>" . var_dump($this->machine) . "</pre>";
 					$this->USER, $this->PASSWORD);
 	}
 	function process_message($msg){
+		echo "processing message \n";
 		// send the ack to clear the item from the queue
 		if ($msg->getRoutingKey() !== "*"){
 			return;
@@ -98,7 +99,7 @@ echo "$this->exchange";
 	}
 	function process_requests($callback){
 		try
-		{
+		{echo "processing request\n";
 			$this->callback = $callback;
       		$conn = $this->get_connection();
 			//$conn->connect();
@@ -111,12 +112,10 @@ echo "$this->exchange";
 			
 			$channel->queue_declare($this->queue);
 			$channel->queue_bind($this->queue,$this->exchange);
-			$channel->basic_consume($this->queue, $this->routing_key, 
+			echo "Consuming queue\n";
+			$channel->basic_consume($this->queue, '', 
 			false, false, false, false, array($this, 'process_message'));
-			/*$this->conn_queue = new AMQPQueue($channel);
-			$this->conn_queue->setName($this->queue);
-			$this->conn_queue->bind($exchange->getName(),$this->routing_key);
-			$this->conn_queue->consume(array($this,'process_message'));*/
+			
 			// Loop as long as the channel has callbacks registered
 			while (count($channel->callbacks))
 			{
@@ -166,7 +165,7 @@ class rabbitMQClient
 					$this->USER, $this->PASSWORD);
 	}
 	function process_response($response)
-	{
+	{ echo "process response\n";
 		$uid = $response->getCorrelationId();
 		if (!isset($this->response_queue[$uid]))
 		{
@@ -189,21 +188,27 @@ class rabbitMQClient
 		try{
 			$conn = $this->get_connection();
 			$channel = $conn->channel();
+			$channel->queue_declare($this->queue, false, false, false, true);
 			$channel->exchange_declare($this->exchange, AMQPExchangeType::DIRECT, 
 			false, false, true);
-			
+			$channel->queue_bind($this->queue, $this->exchange);
 			//create message and properties
 			$msg = new AMQPMessage($json_message, array(
 				'correlation_id'=> $uid,
 				'content_type'=>'text/json',
 				'reply_to' => $this->routing_key . ".response")
 			);
-			
+			echo "sending message\n";
 			$channel->basic_publish($msg, $this->exchange, $this->routing_key);
 			$this->response_queue[$uid] = "waiting";
-			$channel->basic_consume($this->queue, $this->routing_key . ".response",
+			echo "waiting to consume\n";
+			$tag = $channel->basic_consume($this->queue, '',
 			false, false, false, false, array($this, 'process_response'));
+			//while($this->response_queue[$uid] === "waiting"){
+			//		$channel->wait();
+			//}
 			$response = $this->response_queue[$uid];
+			echo "Tag: $tag\n";
 			unset($this->response_queue[$uid]);
 			return $response;
 		}
