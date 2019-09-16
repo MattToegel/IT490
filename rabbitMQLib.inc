@@ -61,26 +61,21 @@ echo "<pre>" . var_dump($this->machine) . "</pre>";
 				}
 				$conn = $this->get_connection();
 				$channel = $conn->channel();
-echo "$this->exchange";
-				$channel->exchange_declare($this->exchange, AMQPExchangeType::DIRECT, 
-				false, false, true);
-				
-				//$channel->queue_declare($this->INPUT_QUEUE, false, false, false, false);
-				//$channel->queue_bind($this->OUTPUT_QUEUE, $this->exchange, $this->routing_key);
-				$replykey = $this->routing_key.".response";
-				$channel->queue_bind($this->OUTPUT_QUEUE, $this->exchange, $replykey);
-				$channel->basic_publish($response, $this->exchange, $replykey);
+				$msg = new AMQPMessage(
+					(string)"Echo: " . $req->body,
+					array('correlation_id'=>$req->get('correlation_id'))
+				);
+				$req->delivery_info['channe']->basic_publish(
+					$msg,
+					'',
+					$req->get('reply_to')
+				);
+				$req->delivery_info['channe']->basic_ack(
+					$req->delivery_info['delivery_tag']
+				);
+				//$replykey = $this->queue.".response";
+				//$channel->basic_publish($response, $this->exchange, $replykey);
 				return;
-			/*$channel = new AMQPChannel($conn);
-			$exchange = new AMQPExchange($channel);
-      $exchange->setName($this->exchange);
-      $exchange->setType($this->exchange_type);
-			$conn_queue = new AMQPQueue($channel);
-			$conn_queue->setName($msg->getReplyTo());
-			$replykey = $this->routing_key.".response";
-			$conn_queue->bind($exchange->getName(),$replykey);
-			$exchange->publish(json_encode($response),$replykey,AMQP_NOPARAM,array('correlation_id'=>$msg->getCorrelationId()));
-				return;*/
 			}
 		}
 		catch(Exception $e)
@@ -98,26 +93,19 @@ echo "$this->exchange";
 		echo "processed one-way message\n";
 	}
 	function process_requests($callback){
-		try
-		{echo "processing request\n";
+		try{
+			echo "processing request\n";
 			$this->callback = $callback;
       		$conn = $this->get_connection();
-			//$conn->connect();
-			$channel = $conn->channel();//new AMQPChannel($conn);
-			//$exchange = new AMQPExchange($channel);
-			//$exchange->setName($this->exchange);
-			//$exchange->setType($this->exchange_type);
-			$channel->exchange_declare($this->exchange, AMQPExchangeType::DIRECT
-			,false, false, true);
-			
-			$channel->queue_declare($this->queue);
-			$channel->queue_bind($this->queue,$this->exchange);
+			$channel = $conn->channel();
+			$channel->queue_declare($this->queue, false, false, false, false);
 			echo "Consuming queue\n";
+			$channel->basic_qos(null, 1, null);
 			$channel->basic_consume($this->queue, '', 
 			false, false, false, false, array($this, 'process_message'));
 			
 			// Loop as long as the channel has callbacks registered
-			while (count($channel->callbacks))
+			while (count($channel->callbacks) && $channel->is_consuming())
 			{
 				$channel->wait();
 			}
@@ -141,6 +129,7 @@ class rabbitMQClient
 	private $routing_key = '*';
 	private $response_queue = array();
 	private $exchange_type = "topic";
+	private $channel;
 	function __construct($machine, $server = "rabbitMQ")
 	{
 		$this->machine = getHostInfo($server, array($machine));
@@ -159,6 +148,7 @@ class rabbitMQClient
 		}
 		$this->exchange = $this->machine[$server]["EXCHANGE"];
 		$this->queue = $this->machine[$server]["QUEUE"];
+		$this->consume();
 	}
 	function get_connection(){
 		return new AMQPStreamConnection($this->BROKER_HOST, $this->BROKER_PORT,
@@ -182,33 +172,37 @@ class rabbitMQClient
 		$this->response_queue[$uid] = $payload;
 		return false;
 	}
+	function consume(){
+		$conn = $this->get_connection();
+		$this->channel = $conn->channel();
+		$this->channel->queue_declare($this->queue . ".response", false, false, false, true);
+		$this->channel->basic_consume($this->queue . ".response", '', false, true, false, false,
+		array($this, 'process_response'));
+	}
 	function send_request($message){
 		$uid = uniqid();
 		$json_message = json_encode($message);
 		try{
-			$conn = $this->get_connection();
-			$channel = $conn->channel();
-			$channel->queue_declare($this->queue, false, false, false, true);
-			$channel->exchange_declare($this->exchange, AMQPExchangeType::DIRECT, 
-			false, false, true);
-			$channel->queue_bind($this->queue, $this->exchange);
+			$this->response_queue[$uid] = null;
+			$this->correlation_id = $uid;
+			
+			//$channel->exchange_declare($this->exchange, AMQPExchangeType::DIRECT, 
+			//false, false, true);
+			//$channel->queue_bind($this->queue, $this->exchange);
 			//create message and properties
 			$msg = new AMQPMessage($json_message, array(
-				'correlation_id'=> $uid,
-				'content_type'=>'text/json',
-				'reply_to' => $this->routing_key . ".response")
+				'correlation_id'=> $this->correlation_id,
+				'content_type'=>'application/json',
+				'reply_to' => $this->queue . ".response")
 			);
+			
 			echo "sending message\n";
-			$channel->basic_publish($msg, $this->exchange, $this->routing_key);
+			$this->channel->basic_publish($msg, '', $this->queue);
 			$this->response_queue[$uid] = "waiting";
-			echo "waiting to consume\n";
-			$tag = $channel->basic_consume($this->queue, '',
-			false, false, false, false, array($this, 'process_response'));
-			//while($this->response_queue[$uid] === "waiting"){
-			//		$channel->wait();
-			//}
+			while(1$this->response_queue[$uid]){
+				$channel->wait();
+			}
 			$response = $this->response_queue[$uid];
-			echo "Tag: $tag\n";
 			unset($this->response_queue[$uid]);
 			return $response;
 		}
