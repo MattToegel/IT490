@@ -8,7 +8,10 @@ function login($user,$pass){
 	//TODO validate user credentials
 	return true;
 }
-
+function doEcho($req){
+	$req['message'] = "Echo " . $req['message'];
+	return $req;
+}
 function request_processor($req){
 	echo "Received Request".PHP_EOL;
 	echo "<pre>" . var_dump($req) . "</pre>";
@@ -22,6 +25,8 @@ function request_processor($req){
 			return login($req['username'], $req['password']);
 		case "validate_session":
 			return validate($req['session_id']);
+		case "echo":
+			return doEcho($req);
 	}
 	return array("return_code" => '0',
 		"message" => "Server received request and processed it");
