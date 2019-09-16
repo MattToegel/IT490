@@ -60,7 +60,8 @@ echo "<pre>" . var_dump($this->machine) . "</pre>";
 				}
 				$conn = $this->get_connection();
 				$channel = $conn->channel();
-				$channel->exchange_declare($this->EXCHANGE, AMQPExchangeType:DIRECT, false, false, true);
+echo "$this->EXCHANGE";
+				$channel->exchange_declare($this->EXCHANGE, AMQPExchangeType::DIRECT, false, false, true);
 				
 				//$channel->queue_declare($this->INPUT_QUEUE, false, false, false, false);
 				//$channel->queue_bind($this->OUTPUT_QUEUE, $this->EXCHANGE, $this->routing_key);
@@ -77,8 +78,8 @@ echo "<pre>" . var_dump($this->machine) . "</pre>";
 			$replykey = $this->routing_key.".response";
 			$conn_queue->bind($exchange->getName(),$replykey);
 			$exchange->publish(json_encode($response),$replykey,AMQP_NOPARAM,array('correlation_id'=>$msg->getCorrelationId()));
-				return;
-			}*/
+				return;*/
+			}
 		}
 		catch(Exception $e)
 		{
@@ -191,7 +192,7 @@ class rabbitMQClient
 			//create message and properties
 			$msg = new AMQPMessage($json_message, array(
 				'correlation_id'=> $uid,
-				'content_type'=>'text/json'
+				'content_type'=>'text/json',
 				'reply_to' => $this->routing_key . ".response")
 			);
 			
@@ -200,7 +201,7 @@ class rabbitMQClient
 			$channel->basic_consume($this->QUEUE, $this->routing_key . ".response",
 			false, false, true, false, array($this, 'process_response'));
 			$response = $this->response_queue[$uid];
-			unset($this->response_queue[$uid];
+			unset($this->response_queue[$uid]);
 			return $response;
 		}
 		catch(Exception $e)
