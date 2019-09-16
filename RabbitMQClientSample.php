@@ -8,7 +8,7 @@ if(isset($argv[1])){
 	$msg = $argv[1];
 }
 else{
-	$msg = "test message";
+	$msg = array("message"=>"test message");
 }
 
 $response = $client->send_request($msg);

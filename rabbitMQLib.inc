@@ -52,32 +52,35 @@ echo "<pre>" . var_dump($this->machine) . "</pre>";
 		}*/
 		$deliveryTag = $req->get('delivery_tag');
 		echo 'Delivery tag: ' . $deliveryTag;
-		$this->conn_queue->basic_ack($deliveryTag);
+		//$this->conn_queue->basic_ack($deliveryTag);
 		try{
 			
-			if ($msg->get('reply_to')){
+			if ($req->get('reply_to')){
 				// message wants a response
 				// process request
 				$body = $req->body;
 				$payload = json_decode($body, true);
+				$payload['message'] = "Echo " . $payload['message'];
 				$response;
 				if (isset($this->callback)){
 					$response = call_user_func($this->callback,$payload);
+					echo "Callback response " . $response . "\n";
 				}
 				$conn = $this->get_connection();
 				$channel = $conn->channel();
 				$msg = new AMQPMessage(
-					(string)"Echo: " . $req->body,
+					(string)json_encode($payload),
 					array('correlation_id'=>$req->get('correlation_id'))
 				);
+				echo "Replying to " . $req->get('reply_to') . "\n";
 				$req->delivery_info['channel']->basic_publish(
 					$msg,
 					'',
 					$req->get('reply_to')
 				);
-				$req->delivery_info['channel']->basic_ack(
+				/*$req->delivery_info['channel']->basic_ack(
 					$req->delivery_info['delivery_tag']
-				);
+				);*/
 				//$replykey = $this->queue.".response";
 				//$channel->basic_publish($response, $this->exchange, $replykey);
 				return;
@@ -89,8 +92,9 @@ echo "<pre>" . var_dump($this->machine) . "</pre>";
             echo "error: rabbitMQServer: process_message: exception caught: ".$e;
 		}
 		// message does not require a response, send ack immediately
-		$body = $msg->getBody();
-		$payload = json_decode($body, true);
+		$body = $msg->body;
+		$payload = json_decode($body);
+		echo "server payload " . var_dump($payload) . "\n";
 		if (isset($this->callback))
 		{
 			call_user_func($this->callback,$payload);
@@ -162,17 +166,19 @@ class rabbitMQClient
 	}
 	function process_response($response)
 	{ echo "process response\n";
-		$uid = $response->getCorrelationId();
+		$uid = $response->get('correlation_id');
 		if (!isset($this->response_queue[$uid]))
 		{
 		  echo  "unknown uid\n";
 		  return true;
 		}
-		$this->conn_queue->ack($response->getDeliveryTag());
-		$body = $response->getBody();
-		$payload = json_decode($body, true);
-		if (!(isset($payload)))
-		{
+		$this->channel->basic_ack($response->get('delivery_tag'));
+		
+		$body = $response->body;
+		echo "Processing body: " . $body . "\n<br>";
+		$payload = json_decode($body);
+		var_dump($payload);
+		if (!isset($payload)){
 			$payload = "[empty response]";
 		}
 		$this->response_queue[$uid] = $payload;
@@ -181,7 +187,8 @@ class rabbitMQClient
 	function consume(){
 		$conn = $this->get_connection();
 		$this->channel = $conn->channel();
-		$this->channel->queue_declare($this->queue . ".response", false, false, false, true);
+		$this->callback_queue = $this->queue . '.response';
+		$this->channel->queue_declare($this->callback_queue, false, false, true, false);
 		/*list($this->callback_queue, ,) = $this->channel->queue_declare(
 				"",
 				false,
@@ -189,12 +196,13 @@ class rabbitMQClient
 				true,
 				false
 			);*/
-		$this->channel->basic_consume($this->queue . ".response", '', false, true, false, false,
+		$this->channel->basic_consume($this->callback_queue, '', false, true, false, false,
 		array($this, 'process_response'));
 	}
 	function send_request($message){
 		$uid = uniqid();
 		$json_message = json_encode($message);
+		echo "json message <pre>" . var_dump($json_message) . "</pre>\n<br>";
 		try{
 			$this->response_queue[$uid] = null;
 			$this->correlation_id = $uid;
@@ -203,10 +211,11 @@ class rabbitMQClient
 			//false, false, true);
 			//$channel->queue_bind($this->queue, $this->exchange);
 			//create message and properties
+		
 			$msg = new AMQPMessage($json_message, array(
 				'correlation_id'=> $this->correlation_id,
 				'content_type'=>'application/json',
-				'reply_to' => $this->queue . ".response")
+				'reply_to' => $this->callback_queue)
 			);
 			
 			echo "sending message\n";
