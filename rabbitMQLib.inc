@@ -61,7 +61,8 @@ echo "<pre>" . var_dump($this->machine) . "</pre>";
 				$conn = $this->get_connection();
 				$channel = $conn->channel();
 echo "$this->exchange";
-				$channel->exchange_declare($this->exchange, AMQPExchangeType::DIRECT, false, false, true);
+				$channel->exchange_declare($this->exchange, AMQPExchangeType::DIRECT, 
+				false, false, true);
 				
 				//$channel->queue_declare($this->INPUT_QUEUE, false, false, false, false);
 				//$channel->queue_bind($this->OUTPUT_QUEUE, $this->exchange, $this->routing_key);
@@ -106,7 +107,7 @@ echo "$this->exchange";
 			//$exchange->setName($this->exchange);
 			//$exchange->setType($this->exchange_type);
 			$channel->exchange_declare($this->exchange, AMQPExchangeType::DIRECT
-			,false, false, false);
+			,false, false, true);
 			
 			$channel->queue_declare($this->queue);
 			$channel->queue_bind($this->queue,$this->exchange);
@@ -143,7 +144,7 @@ class rabbitMQClient
 	private $exchange_type = "topic";
 	function __construct($machine, $server = "rabbitMQ")
 	{
-		$this->machine = getHostInfo(array($machine));
+		$this->machine = getHostInfo($server, array($machine));
 		$this->BROKER_HOST   = $this->machine[$server]["BROKER_HOST"];
 		$this->BROKER_PORT   = $this->machine[$server]["BROKER_PORT"];
 		$this->USER     = $this->machine[$server]["USER"];
@@ -188,7 +189,8 @@ class rabbitMQClient
 		try{
 			$conn = $this->get_connection();
 			$channel = $conn->channel();
-			$channel->exchange_declare($this->exchange, AMQPExchangeType::DIRECT, false, false, true);
+			$channel->exchange_declare($this->exchange, AMQPExchangeType::DIRECT, 
+			false, false, true);
 			
 			//create message and properties
 			$msg = new AMQPMessage($json_message, array(
