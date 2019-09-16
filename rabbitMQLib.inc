@@ -60,14 +60,14 @@ echo "<pre>" . var_dump($this->machine) . "</pre>";
 				}
 				$conn = $this->get_connection();
 				$channel = $conn->channel();
-echo "$this->EXCHANGE";
-				$channel->exchange_declare($this->EXCHANGE, AMQPExchangeType::DIRECT, false, false, true);
+echo "$this->exchange";
+				$channel->exchange_declare($this->exchange, AMQPExchangeType::DIRECT, false, false, true);
 				
 				//$channel->queue_declare($this->INPUT_QUEUE, false, false, false, false);
-				//$channel->queue_bind($this->OUTPUT_QUEUE, $this->EXCHANGE, $this->routing_key);
+				//$channel->queue_bind($this->OUTPUT_QUEUE, $this->exchange, $this->routing_key);
 				$replykey = $this->routing_key.".response";
-				$channel->queue_bind($this->OUTPUT_QUEUE, $this->EXCHANGE, $replykey);
-				$channel->basic_publish($response, $this->EXCHANGE, $replykey);
+				$channel->queue_bind($this->OUTPUT_QUEUE, $this->exchange, $replykey);
+				$channel->basic_publish($response, $this->exchange, $replykey);
 				return;
 			/*$channel = new AMQPChannel($conn);
 			$exchange = new AMQPExchange($channel);
@@ -105,12 +105,12 @@ echo "$this->EXCHANGE";
 			//$exchange = new AMQPExchange($channel);
 			//$exchange->setName($this->exchange);
 			//$exchange->setType($this->exchange_type);
-			$channel->exchange_declare($this->EXCHANGE, AMQPExchangeType::DIRECT
+			$channel->exchange_declare($this->exchange, AMQPExchangeType::DIRECT
 			,false, false, false);
 			
-			$channel->queue_declare($this->QUEUE);
-			$channel->queue_bind($this->QUEUE,$this->EXCHANGE);
-			$channel->basic_consume($this->QUEUE, $this->routing_key, false, false, true, false, array($this, 'process_message'));
+			$channel->queue_declare($this->queue);
+			$channel->queue_bind($this->queue,$this->exchange);
+			$channel->basic_consume($this->queue, $this->routing_key, false, false, true, false, array($this, 'process_message'));
 			/*$this->conn_queue = new AMQPQueue($channel);
 			$this->conn_queue->setName($this->queue);
 			$this->conn_queue->bind($exchange->getName(),$this->routing_key);
@@ -187,7 +187,7 @@ class rabbitMQClient
 		try{
 			$conn = $this->get_connection();
 			$channel = $conn->channel();
-			$channel->exchange_declare($this->EXCHANGE, AMQPExchangeType::DIRECT, false, false, true);
+			$channel->exchange_declare($this->exchange, AMQPExchangeType::DIRECT, false, false, true);
 			
 			//create message and properties
 			$msg = new AMQPMessage($json_message, array(
@@ -196,9 +196,9 @@ class rabbitMQClient
 				'reply_to' => $this->routing_key . ".response")
 			);
 			
-			$channel->basic_publish($msg, $this->EXCHANGE, $this->routing_key);
+			$channel->basic_publish($msg, $this->exchange, $this->routing_key);
 			$this->response_queue[$uid] = "waiting";
-			$channel->basic_consume($this->QUEUE, $this->routing_key . ".response",
+			$channel->basic_consume($this->queue, $this->routing_key . ".response",
 			false, false, true, false, array($this, 'process_response'));
 			$response = $this->response_queue[$uid];
 			unset($this->response_queue[$uid]);
@@ -222,7 +222,7 @@ class rabbitMQClient
 		{
 			$conn = $this->get_connection();
 			$channel = $channel->channel();
-			$channel->exchange_declare($this->EXCHANGE, AMQPExchangeType::DIRECT, false, false, true);
+			$channel->exchange_declare($this->exchange, AMQPExchangeType::DIRECT, false, false, true);
 			
 			
 			
