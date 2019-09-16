@@ -42,7 +42,7 @@ echo "<pre>" . var_dump($this->machine) . "</pre>";
 		return new AMQPStreamConnection($this->BROKER_HOST, $this->BROKER_PORT,
 					$this->USER, $this->PASSWORD);
 	}
-	function process_message($msg){
+	function process_message($req){
 		echo "processing message \n";
 		// send the ack to clear the item from the queue
 		/*if ($msg->delivery_info['routing_key'] !== "*"){
@@ -50,7 +50,7 @@ echo "<pre>" . var_dump($this->machine) . "</pre>";
 			
 			return;
 		}*/
-		$deliveryTag = $msg->get('delivery_tag');
+		$deliveryTag = $req->get('delivery_tag');
 		echo 'Delivery tag: ' . $deliveryTag;
 		$this->conn_queue->basic_ack($deliveryTag);
 		try{
@@ -58,7 +58,7 @@ echo "<pre>" . var_dump($this->machine) . "</pre>";
 			if ($msg->get('reply_to')){
 				// message wants a response
 				// process request
-				$body = $msg->body;
+				$body = $req->body;
 				$payload = json_decode($body, true);
 				$response;
 				if (isset($this->callback)){
