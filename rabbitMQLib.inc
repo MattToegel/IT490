@@ -51,7 +51,7 @@ class rabbitMQServer
 		$delivery_tag = $req->get('delivery_tag');
 		//$this->conn_queue->basic_ack($deliveryTag);
 		try{
-			$reply_to = $req-get('reply_to');
+			$reply_to = $req->get('reply_to');
 			if ($reply_to){
 				// message wants a response
 				// process request
