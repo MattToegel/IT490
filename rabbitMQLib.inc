@@ -5,7 +5,7 @@ require_once('get_host_info.inc');
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Exchange\AMQPExchangeType;
 use PhpAmqpLib\Message\AMQPMessage;
-/**https://www.rabbitmq.com/amqp-0-9-1-reference.html**/
+
 class rabbitMQServer
 {
 	private $machine = "";
@@ -48,11 +48,11 @@ class rabbitMQServer
 
 			return;
 		}*/
-		$delivery_tag = $req->get('delivery_tag');
+		$deliveryTag = $req->get('delivery_tag');
 		//$this->conn_queue->basic_ack($deliveryTag);
 		try{
-			$reply_to = $req->get('reply_to');
-			if ($reply_to){
+
+			if ($req->get('reply_to')){
 				// message wants a response
 				// process request
 				$body = $req->body;
@@ -68,19 +68,11 @@ class rabbitMQServer
 					(string)json_encode($response),
 					array('correlation_id'=>$req->get('correlation_id'))
 				);
-				echo "Replying to " . $reply_to . "\n";
-				$delivery_channel = $req->delivery_info['channel'];
-				$delivery_channel->basic_publish(
-					$message= $msg,
-					$exchange= '',
-					$routing_key= $reply_to,
-					$mandatory= false,
-					$immediate= false,
-					$ticket= null
-				);
-				$delivery_channel->basic_ack(
-					$delivery_tag= $delivery_tag,
-					$multiple= false
+				echo "Replying to " . $req->get('reply_to') . "\n";
+				$req->delivery_info['channel']->basic_publish(
+					$msg,
+					'',
+					$req->get('reply_to')
 				);
 				return;
 			}
@@ -105,35 +97,15 @@ class rabbitMQServer
 			$conn = $this->get_connection();
 			$channel = $conn->channel();
 			$this->conn_queue = $channel;
-			$channel->queue_declare(
-				$queue= $this->queue,//other params are defaults, just showing potential values
-				$passive= false,
-				$durable= false,
-				$exclusive= false,
-				$auto_delete= true,
-				$nowait= false,
-				$arguments= array(),
-				$ticket= null);
-			echo "Declared queue: " . $this->queue . "\n";
-			$channel->basic_qos(
-				$prefetch_size= null,
-				$prefetch_count= 1,
-				$is_global= null);
-			$channel->basic_consume(
-				$queue= $this->queue,
-				$consumer_tag= '',
-				$no_local= false,
-				$no_ack= true,
-				$exclusive= false,
-				$nowait= false,
-				$callback= array($this, 'process_message'),
-				$ticket= null,
-				$arguments= array());
-
+			$channel->queue_declare($this->queue, false, false, false, true);
 			echo "Consuming queue\n";
+			$channel->basic_qos(null, 1, null);
+			$channel->basic_consume($this->queue, '',
+			false, true, false, false, array($this, 'process_message'));
+
 			// Loop as long as the channel has callbacks registered
-			while (count($this->conn_queue->callbacks)
-						&& $this->conn_queue->is_consuming()){
+			while (count($this->conn_queue->callbacks) && $this->conn_queue->is_consuming())
+			{
 				$this->conn_queue->wait();
 			}
 		}
@@ -187,8 +159,7 @@ class rabbitMQClient
 		  echo  "unknown uid\n";
 		  return true;
 		}
-		$this->channel->basic_ack(
-				$delivery_tag= $response->get('delivery_tag'));
+		$this->channel->basic_ack($response->get('delivery_tag'));
 
 		$body = $response->body;
 		$payload = json_decode($body);
@@ -203,19 +174,16 @@ class rabbitMQClient
 		$conn = $this->get_connection();
 		$this->channel = $conn->channel();
 		$this->callback_queue = $this->queue . '.response';
-		$this->channel->queue_declare(
-				$queue= $this->callback_queue,
-				$passive= false,
-				$durable= false,
-				$exclusive= false, false);
-		$this->channel->basic_consume(
-				$queue= $this->callback_queue,
-				$consumer_tag= '',
-				$no_local= false,
-				$no_ack= true,
-				$exclusive= false,
-				$nowait= false,
-				$callback= array($this, 'process_response'));
+		$this->channel->queue_declare($this->callback_queue, false, false, true, false);
+		/*list($this->callback_queue, ,) = $this->channel->queue_declare(
+				"",
+				false,
+				false,
+				true,
+				false
+			);*/
+		$this->channel->basic_consume($this->callback_queue, '', false, true, false, false,
+		array($this, 'process_response'));
 	}
 	function send_request($message){
 		$uid = uniqid();
@@ -233,10 +201,7 @@ class rabbitMQClient
 
 			echo "sending message\n";
 
-			$this->channel->basic_publish(
-					$message= $msg,
-					$exhange= '',
-					$routing_key= $this->queue);
+			$this->channel->basic_publish($msg, '', $this->queue);
 			$this->response_queue[$uid] = "waiting";
 			while($this->response_queue[$uid] === "waiting"){
 				$this->channel->wait();
