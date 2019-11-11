@@ -22,6 +22,8 @@ function request_processor($req){
 			return login($req['username'], $req['password']);
 		case "validate_session":
 			return validate($req['session_id']);
+		case "echo":
+			return array("return_code"=>'0', "message"=>"Echo: " .$req["message"]);
 	}
 	return array("return_code" => '0',
 		"message" => "Server received request and processed it");
