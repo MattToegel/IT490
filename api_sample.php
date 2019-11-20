@@ -1,4 +1,4 @@
- php -S localhost:8000<?php
+<?php
 require("config.inc");
 $source = "bitcoin";
 if(isset($argv[1])){
