@@ -1,9 +1,12 @@
-<?php
+ php -S localhost:8000<?php
 require("config.inc");
 $source = "bitcoin";
 if(isset($argv[1])){
 	//$argv[0] is name of script always
 	$source = $argv[1];
+}
+if(isset($_GET["query"])){
+	$source = $_GET["query"];
 }
 $curl = curl_init();
 
@@ -33,6 +36,14 @@ if ($err) {
 	echo "cURL Error #:" . $err;
 } else {
 	//echo $response;
-	echo json_encode($response, JSON_PRETTY_PRINT);
+	$r = json_encode($response);
+
+	if(isset($_GET["browser"])){
+
+		echo "<pre>" . var_export($r,true)  . "</pre>";
+	}
+	else{
+		echo $r;
+	}
 }
 ?>
