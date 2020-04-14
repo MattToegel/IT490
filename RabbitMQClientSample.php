@@ -5,10 +5,12 @@ require_once('rabbitMQLib.inc');
 
 $client = new RabbitMQClient('testRabbitMQ.ini', 'testServer');
 if(isset($argv[1])){
-	$msg = $argv[1];
+	//$msg = $argv[1];
+	$msg = array("query"=>$argv[1], "type"=> "get_news");
 }
 else{
-	$msg = array("message"=>"test message", "type"=>"echo");
+	//$msg = array("message"=>"test message", "type"=>"echo");
+	$msg = array("query"=>"corona", "type"=>"get_news");
 }
 
 $response = $client->send_request($msg);
