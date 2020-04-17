@@ -1,18 +1,21 @@
 <?php
-	if(isset($_POST['query'])){
-		$query = $_POST['query'];
-		require_once('functions.php');
-		$data = Client::get_news($query);
-		$output = array("data"=>json_decode($data,true));
-	}
+$query = "";
+if(isset($_POST['query'])){
+	$query = $_POST['query'];
+	require_once('functions.php');
+	$data = Client::get_news($query);
+	$output = array("data"=>json_decode($data,true));
+}
 ?>
 <html>
 <head></head>
 
 <body>
 <form method="POST">
-	<input type="text" name="query" placeholder="What do you want?"/>
-	<input type="Submit" value="Ask the Oracle"/> </form> <div id="output"> 
+	<input type="text" name="query" placeholder="What do you want?" value="<?php echo $query;?>"/>
+	<input type="Submit" value="Ask the Oracle"/> 
+</form> 
+<div id="output"> 
 <?php 
 /* sample structure 
 
