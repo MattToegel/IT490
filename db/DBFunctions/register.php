@@ -1,3 +1,4 @@
+<?php
 function register($username, $password){
 	//from dbconnection.php
 	$stmt = getDB()->prepare("gotta do this one yourself");
@@ -14,3 +15,4 @@ function register($username, $password){
 		return array("status"=>400, "message"=>"do something");
 	}
 }
+?>
