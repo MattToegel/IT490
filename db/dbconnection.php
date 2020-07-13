@@ -1,3 +1,4 @@
+<?php
 function getDB(){
 	global $db;
 	if(!isset($db)){
@@ -7,3 +8,4 @@ function getDB(){
 	}
 	return $db;
 }
+?>
