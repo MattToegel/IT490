@@ -1,3 +1,4 @@
+<?php
 function login($username, $password){
 	//from dbconnection.php
 	$stmt = getDB()->prepare("SELECT * FROM Users where username = :username LIMIT 1");
@@ -20,3 +21,4 @@ function login($username, $password){
 		return array("status"=>400, "message"=>"do something");
 	}
 }
+?>
