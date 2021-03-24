@@ -1,7 +1,7 @@
 
 source=$1
 destination=$2
-
+# make sure source and destination are absolute paths or prepare for a bad day
 for filename in $source/*; do
         base=$(basename "$filename")
         echo $(basename "$filename")
