@@ -1,2 +1,2 @@
 # source folder destination folder
-./implement.sh receive live
+./implement.sh /path/to/receive /path/to/live
