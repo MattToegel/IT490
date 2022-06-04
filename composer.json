@@ -1,10 +1,10 @@
 {
-    "name": "matt/it490",
-    "type": "Something-Fun",
+    "name": "jiazhong",
+    "type": "it490-project",
     "authors": [
         {
-            "name": "MattToegel",
-            "email": "matthew.toegel@njit.edu"
+            "name": "jiazhong",
+            "email": "jlz6@njit.edu"
         }
     ],
     "require": {
