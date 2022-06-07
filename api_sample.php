@@ -42,7 +42,7 @@ if ($err) {
 		echo "<pre>" . var_export($r,true)  . "</pre>";
 	}
 	else{
-		foreach ($r as $key => $value) {
+		foreach ($response as $key => $value) {
 			echo $key . ":--  " . $value;
 		}
 	}
