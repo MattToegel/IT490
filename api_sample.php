@@ -37,13 +37,14 @@ if ($err) {
 } else {
 	//echo $response;
 	$r = json_encode($response);
-	echo $r;
 	if(isset($_GET["browser"])){
 
 		echo "<pre>" . var_export($r,true)  . "</pre>";
 	}
 	else{
-		echo $r;
+		foreach ($r as $key => $value) {
+			echo $key . ":--  " . $value;
+		}
 	}
 }
 ?>
