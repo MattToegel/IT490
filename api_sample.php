@@ -1,5 +1,5 @@
 <?php
-require("config.inc");
+require_once("config.inc");
 $source = "The Avengers";
 if(isset($argv[1])){
 	//$argv[0] is name of script always
