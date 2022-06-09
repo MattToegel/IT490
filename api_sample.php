@@ -35,14 +35,6 @@ curl_close($curl);
 if ($err) {
 	echo "cURL Error #:" . $err;
 } else {
-	echo $response . "\n";
-	$r = json_encode($response);
-	if(isset($_GET["browser"])){
-
-		echo "<pre>" . var_export($r,true)  . "</pre>";
-	}
-	else{
-		echo $r;
-	}
+	echo $response;
 }
 ?>
