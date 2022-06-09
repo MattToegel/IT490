@@ -16,7 +16,7 @@ function request_processor($req){
 		return "Error: unsupported message type";
 	}
 	//Handle message type
-	echo "\n\n" . var_dump($req) . "\n\n";
+	echo json_decode($req);
 	$type = $req['type'];
 	switch($type){
 		case "login":
