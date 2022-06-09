@@ -11,7 +11,7 @@ if(isset($_GET["query"])){
 $curl = curl_init();
 
 curl_setopt_array($curl, array(
-	CURLOPT_URL => "https://moviesdatabase.p.rapidapi.com/titles/search/title/avengers?info=mini_info&limit=10&page=1&titleType=movie",
+	CURLOPT_URL => "https://opentdb.com/api.php?amount=10&category=11&difficulty=easy",
 	CURLOPT_RETURNTRANSFER => true,
 	CURLOPT_FOLLOWLOCATION => true,
 	CURLOPT_ENCODING => "",
@@ -21,9 +21,9 @@ curl_setopt_array($curl, array(
 	CURLOPT_CUSTOMREQUEST => "GET",
 	//CURLOPT_POSTFIELDS => "apiKey=$api_key&newsSource=$source",
 	CURLOPT_HTTPHEADER => array(
-		//"content-type: application/x-www-form-urlencoded",
-		"X-RapidAPI-Host: moviesdatabase.p.rapidapi.com",
-		"X-RapidAPI-Key: 5e30fe309cmsheeda5c4f1e65deep1e94f5jsn1e4b3477cbc8"
+		"content-type: application/json",
+		//"X-RapidAPI-Host: moviesdatabase.p.rapidapi.com",
+		//"X-RapidAPI-Key: 5e30fe309cmsheeda5c4f1e65deep1e94f5jsn1e4b3477cbc8"
 	),
 ));
 
