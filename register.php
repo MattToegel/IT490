@@ -135,7 +135,7 @@
 
             $json_message = json_encode($reg_arr);
             echo $json_message;
-            $msg = array("data" => $json_message, type => "insert");
+            $msg = array("data" => $json_message, "type" => "insert");
             $client = new RabbitMQClient('testRabbitMQ.ini', 'testServer');
             $response = $client->send_request($msg);
             echo "Login successful";
