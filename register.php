@@ -101,7 +101,7 @@
 
         $isValid = true;
 
-        if (preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[\d,.;:]).+$/', $pass) || strlen($pass) < 8) {
+        if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[\d,.;:]).+$/', $pass) || strlen($pass) < 8) {
             echo "Password must contain a capital letter, a lowercase letter, a number, and a special character and must be atleast 8 characters";
             $isValid = false;
         }
