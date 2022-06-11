@@ -34,10 +34,18 @@
                                                                     } ?>" required />
             <br>
             <label for="email">Email</label>
-            <input type="email" id="email" name="email" required />
+            <input type="email" id="email" name="email" value="<?php if (!isset($_POST["email"])) {
+                                                                    echo '';
+                                                                } else {
+                                                                    echo $_POST["email"];
+                                                                } ?>" required />
             <br>
             <label for="bday">Birthday</label>
-            <input type="date" id="bday" name="bday" required />
+            <input type="date" id="bday" name="bday" value="<?php if (!isset($_POST["bday"])) {
+                                                                echo '';
+                                                            } else {
+                                                                echo $_POST["bday"];
+                                                            } ?>" required />
             <br>
             <label for="pass">Password</label>
             <input type="password" id="pass" name="pass" required />
