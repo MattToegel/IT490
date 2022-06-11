@@ -1,3 +1,5 @@
 /vendor/
 config.*
 *.log
+host*
+test*
