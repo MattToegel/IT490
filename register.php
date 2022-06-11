@@ -58,6 +58,10 @@
     </div>
 
     <?php
+    require_once('path.inc');
+    require_once('get_host_info.inc');
+    require_once('rabbitMQLib.inc');
+
     if (isset($_POST["submit"])) {
         $fname = null;
         $lname = null;
@@ -130,6 +134,12 @@
 
             $json_message = json_encode($reg_arr);
             echo $json_message;
+
+            $client = new RabbitMQClient('testRabbitMQ.ini', 'testServer');
+            $response = $client->send_request($json_message);
+            echo "Login successful";
+            echo $reponse;
+            echo "\n\n";
         }
     }
     ?>
