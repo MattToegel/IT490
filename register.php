@@ -129,14 +129,15 @@
                 "username" => $username,
                 "email" => $email,
                 "bday" => $bday,
+                "pass" => $pass_hash,
                 "submit" => $_POST["submit"]
             );
 
             $json_message = json_encode($reg_arr);
             echo $json_message;
-
+            $msg = array("data" => $json_message, type => "insert")
             $client = new RabbitMQClient('testRabbitMQ.ini', 'testServer');
-            $response = $client->send_request($json_message);
+            $response = $client->send_request($msg);
             echo "Login successful";
             echo $reponse;
             echo "\n\n";
