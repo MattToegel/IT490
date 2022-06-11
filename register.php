@@ -139,7 +139,7 @@
             $client = new RabbitMQClient('testRabbitMQ.ini', 'testServer');
             $response = $client->send_request($msg);
             echo "Login successful";
-            echo $reponse;
+            print_r($reponse);
             echo "\n\n";
         }
     }

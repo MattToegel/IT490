@@ -4,34 +4,38 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
-function login($user,$pass){
+function login($user, $pass)
+{
 	//TODO validate user credentials
 	return true;
 }
 
-function request_processor($req){
-	echo "Received Request".PHP_EOL;
+function request_processor($req)
+{
+	echo "Received Request" . PHP_EOL;
 	echo "<pre>" . var_dump($req) . "</pre>";
-	if(!isset($req['type'])){
+	if (!isset($req['type'])) {
 		return "Error: unsupported message type";
 	}
 	//Handle message type
 	echo json_decode($req);
 	$type = $req['type'];
-	switch($type){
+	switch ($type) {
 		case "login":
 			return login($req['username'], $req['password']);
 		case "validate_session":
 			return validate($req['session_id']);
 		case "echo":
-			return array("return_code"=>'0', "message"=>"Echo: " .$req["message"]);
+			return array("return_code" => '0', "message" => "Echo: " . $req["message"]);
 		case "insert":
-			return array("return_code"=>'2', "message"=>"Success");
+			return array("return_code" => '0', "message" => "Success: " . $req["fname"] . " " . $req["lname"]);
 		default:
-			return array("return_code"=>'1', "data"=>"Quiz Data: " . json_encode($req));
+			return array("return_code" => '1', "data" => "Quiz Data: " . json_encode($req));
 	}
-	return array("return_code" => '0',
-		"message" => "Server received request and processed it");
+	return array(
+		"return_code" => '0',
+		"message" => "Server received request and processed it"
+	);
 }
 
 $server = new rabbitMQServer("testRabbitMQ.ini", "sampleServer");
