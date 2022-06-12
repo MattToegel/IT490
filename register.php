@@ -61,6 +61,7 @@
     require_once('path.inc');
     require_once('get_host_info.inc');
     require_once('rabbitMQLib.inc');
+    require_once(__DIR__ . "/lib/helpers.php");
 
     if (isset($_POST["submit"])) {
         $fname = null;
@@ -124,23 +125,28 @@
             $pass_hash = password_hash($pass, PASSWORD_BCRYPT);
 
             $reg_arr = array(
-                "fname" => $fname,
-                "lname" => $lname,
-                "username" => $username,
-                "email" => $email,
-                "bday" => $bday,
-                "pass" => $pass_hash,
-                "submit" => $_POST["submit"]
+                ":fname" => $fname,
+                ":lname" => $lname,
+                ":email" => $email,
+                ":username" => $username,
+                ":bday" => $bday,
+                ":is_active" => 1,
+                ":pass" => $pass_hash,
             );
+            $db = getDB();
+            $query = "INSERT INTO Users(fname, lname, email, username, bday, is_active, `password`) ";
+            $query .= "VALUES(:fname, :lname, :email, :username, :bday, :is_active, :pass)";
+            $stmt = $db->prepare($query);
+            $r = $stmt->execute($reg_arr);
+            $e = $stmt->errorInfo();
+            if ($e[0] == "00000") {
+                echo "Registration successful";
+            }
+            else {
+                echo "something went wrong";
+            }
 
-            $json_message = json_encode($reg_arr);
-            echo $json_message;
-            $msg = array("data" => $reg_arr, "type" => "insert");
-            $client = new RabbitMQClient('testRabbitMQ.ini', 'testServer');
-            $response = $client->send_request($msg);
-            echo "Login successful";
-            echo $reponse;
-            echo "\n\n";
+           
         }
     }
     ?>
