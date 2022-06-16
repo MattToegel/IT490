@@ -1,46 +1,34 @@
 <?php
+    include(__DIR__ . "/vendor/autoload.php");
+    include(__DIR__ . "/config_rmq.php");
+    use PhpAmqpLib\Connection\AMQPStreamConnection;
+    use PhpAmqpLib\Exchange\AMQPExchangeType;
+    require_once(__DIR__ . "/lib/helpers.php");
 
-require_once('path.inc');
-require_once('get_host_info.inc');
-require_once('rabbitMQLib.inc');
+	$CONSUMER_TAG = 'reg_consumer';
 
-function login($user, $pass)
-{
-	//TODO validate user credentials
-	return true;
-}
+	$connection = new AMQPStreamConnection($BROKER_HOST, $BROKER_PORT, $USER, $PASSWORD, $VHOST);
 
-function request_processor($req)
-{
-	echo "Received Request" . PHP_EOL;
-	echo "<pre>" . var_dump($req) . "</pre>";
-	if (!isset($req['type'])) {
-		return "Error: unsupported message type";
+	$channel = $connection->channel();
+	$channel->queue_declare($QUEUE, false, true, false, false);
+	$channel->exchange_declare($EXCHANGE, AMQPExchangeType::DIRECT, false, true, false);
+	$channel->queue_bind($QUEUE, $EXCHANGE);
+
+	function process_message($message) {
+		echo json_decode($message);
+		echo "\n------\n";
+		$message->ack();
 	}
-	//Handle message type
-	echo json_decode($req);
-	$type = $req['type'];
-	switch ($type) {
-		case "login":
-			return login($req['username'], $req['password']);
-		case "validate_session":
-			return validate($req['session_id']);
-		case "echo":
-			return array("return_code" => '0', "message" => "Echo: " . $req["message"]);
-		case "insert":
-			return array("return_code" => '0', "message" => "Success: " . $req["fname"] . " " . $req["lname"]);
-		default:
-			return array("return_code" => '1', "data" => "Quiz Data: " . json_encode($req));
+
+	$channel->basic_consume($QUEUE, $CONSUMER_TAG, false, false, false, false, 'process_message');
+
+	function shutdown($channel, $connection) {
+		$channel->close();
+		$connection->close();
 	}
-	return array(
-		"return_code" => '0',
-		"message" => "Server received request and processed it"
-	);
-}
 
-$server = new rabbitMQServer("testRabbitMQ.ini", "sampleServer");
+	register_shutdown_function('shutdown', $channel, $connection);
 
-echo "Rabbit MQ Server Start" . PHP_EOL;
-$server->process_requests('request_processor');
-echo "Rabbit MQ Server Stop" . PHP_EOL;
-exit();
+	$channel->consume();
+
+?>
