@@ -2,14 +2,13 @@
 require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
-require_once('api_sample.php');
 
 $client = new RabbitMQClient('testRabbitMQ.ini', 'testServer');
 if(isset($argv[1])){
 	$msg = $argv[1];
 }
 else{
-	$msg = $response;
+	$msg = 'hello';
 }
 
 $response = $client->send_request($msg);
