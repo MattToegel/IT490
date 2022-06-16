@@ -58,9 +58,14 @@
     </div>
 
     <?php
-    require_once('path.inc');
-    require_once('get_host_info.inc');
-    require_once('rabbitMQLib.inc');
+    //require_once('path.inc');
+    //require_once('get_host_info.inc');
+    //require_once('rabbitMQLib.inc');
+    include(__DIR__ . "/vendor/autoload.php");
+    include(__DIR__ . "/config_rmq.php");
+    use PhpAmqpLib\Connection\AMQPStreamConnection;
+    use PhpAmqpLib\Exchange\AMQPExchangeType;
+    use Php\Message\AMQPMessage;
     require_once(__DIR__ . "/lib/helpers.php");
 
     if (isset($_POST["submit"])) {
@@ -133,18 +138,31 @@
                 ":is_active" => 1,
                 ":pass" => $pass_hash,
             );
-            $db = getDB();
-            $query = "INSERT INTO Users(fname, lname, email, username, bday, is_active, `password`) ";
-            $query .= "VALUES(:fname, :lname, :email, :username, :bday, :is_active, :pass)";
-            $stmt = $db->prepare($query);
-            $r = $stmt->execute($reg_arr);
-            $e = $stmt->errorInfo();
-            if ($e[0] == "00000") {
-                echo "Registration successful";
-            }
-            else {
-                echo "something went wrong";
-            }
+
+            $connection = new AMQPStreamConnection($BROKER_HOST, $BROKER_PORT, $USER, $PASSWORD, $VHOST);
+            $channel = $connection->channel();
+            $channel->queue_declare($QUEUE, false, true, false, false);
+            $channel->exchange_declare($EXCHANGE, AMQPExchangeType::DIRECT, false, true, false);
+            $channel->queue_bind($QUEUE, $EXCHANGE);
+
+            $messageBody = json_encode($reg_arr, JSON_PRETTY_PRINT);
+            $message = new AMQPMessage($messageBody, array('content_type' => 'application/json', 'delievery_mode' => AMQPMessage::DELIEVERY_MODE_PERSISTENT));
+            $channel->basic_publish($message, $EXCHANGE);
+
+            $channel->close();
+            $connection->close();
+            // $db = getDB();
+            // $query = "INSERT INTO Users(fname, lname, email, username, bday, is_active, `password`) ";
+            // $query .= "VALUES(:fname, :lname, :email, :username, :bday, :is_active, :pass)";
+            // $stmt = $db->prepare($query);
+            // $r = $stmt->execute($reg_arr);
+            // $e = $stmt->errorInfo();
+            // if ($e[0] == "00000") {
+            //     echo "Registration successful";
+            // }
+            // else {
+            //     echo "something went wrong";
+            // }
 
            
         }
