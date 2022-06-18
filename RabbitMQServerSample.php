@@ -22,6 +22,27 @@ function request_processor($req){
 			return login($req['username'], $req['password']);
 		case "validate_session":
 			return validate($req['session_id']);
+		case "get_data"://assume I'm DB
+			$stmt = $db->prepare("SELECT * from TABLE where query = :query");
+			$n = $stmt->execute(array(":query"=>$req['query']));
+			$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			if ($data){//TODO manually resync with API
+				return $data;
+			}
+			require_once("function.php");
+			$data = Client::get_news($req['query']);
+			//process data to import into db
+			$d = json_decode($data, true);
+			$stmt = $db->prepare("INSERT INTO TABLE (d1,d2,d3) values(:d1, :d2, :d3)");
+			$params = array(
+				":d1" => $d['data1'],
+				":d2" => $d['data2'],
+				":d3" => $d['data3']
+			);
+			$stmt->execute($params);
+			//voila
+
+			return $data;
 		case "echo":
 			return array("return_code"=>'0', "message"=>"Echo: " .$req["message"]);
 	}
