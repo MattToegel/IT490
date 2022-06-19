@@ -94,7 +94,7 @@ if (isset($_POST["submit"])) {
         $channel->queue_declare('reg_queue', false, false, false, false);
     
 
-        $messageBody = json_encode($_POST);
+        $messageBody = json_encode($reg_arr);
         $message = new AMQPMessage($messageBody);
         $channel->basic_publish($message, '', 'reg_queue');
 
