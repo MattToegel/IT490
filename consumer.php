@@ -7,7 +7,7 @@
 
 	//$CONSUMER_TAG = 'reg_consumer';
 
-	$connection = new AMQPConnection('192.168.1.105', 5672, 'smit', 'P@78word');
+	$connection = new AMQPStreamConnection('192.168.1.105', 5672, 'smit', 'P@78word');
 
 	$channel = $connection->channel();
 	$channel->queue_declare('reg_queue', false, false, false, false);
