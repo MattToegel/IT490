@@ -37,7 +37,7 @@
 <div class="container">
     
 <div id="r-form">
-    <form method="post" id="reg-test">
+    <form method="post" id="reg-test" action="registeruser.php">
         <label for="fname">First Name</label>
         <input type="text" id="fname" name="fname" value="<?php if (!isset($_POST["fname"])) {
             echo '';
@@ -108,104 +108,7 @@
 //require_once('rabbitMQLib.inc');
 require_once(__DIR__ ."/lib/helpers.php");
 
-if (isset($_POST["submit"])) {
-    $fname = null;
-    $lname = null;
-    $username = null;
-    $email = null;
-    $bday = null;
-    $pass = null;
-    $pass1 = null;
 
-    if (isset($_POST["fname"])) {
-        $fname = $_POST["fname"];
-    }
-
-    if (isset($_POST["lname"])) {
-        $lname = $_POST["lname"];
-    }
-
-    if (isset($_POST["username"])) {
-        $username = $_POST["username"];
-    }
-
-    if (isset($_POST["email"])) {
-        $email = $_POST["email"];
-    }
-
-    if (isset($_POST["bday"])) {
-        $bday = $_POST["bday"];
-    }
-
-    if (isset($_POST["pass"])) {
-        $pass = $_POST["pass"];
-    }
-
-    if (isset($_POST["pass1"])) {
-        $pass1 = $_POST["pass1"];
-    }
-
-    $isValid = true;
-
-    if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[\d,.;:]).+$/', $pass) || strlen($pass) < 8) {
-        echo "Password must contain a capital letter, a lowercase letter, a number, and a special character and must be atleast 8 characters";
-        $isValid = false;
-    }
-
-    if ($pass != $pass1) {
-        echo "Passwords don't match";
-        $isValid = false;
-    }
-
-    if (strlen($username) < 8) {
-        echo "Username must be 8 characters or longer";
-        $isValid = false;
-    }
-
-    if (!isset($email) || !isset($username) || !isset($fname) || !isset($bday) || !isset($pass) || !isset($pass1)) {
-        $isValid = false;
-    }
-
-    if ($isValid) {
-        $pass_hash = password_hash($pass, PASSWORD_BCRYPT);
-
-        $reg_arr = array(
-            ":fname" => $fname,
-            ":lname" => $lname,
-            ":email" => $email,
-            ":username" => $username,
-            ":bday" => $bday,
-            ":is_active" => 1,
-            ":pass" => $pass_hash,
-        );
-
-        $db = getDB();
-        $query = "INSERT INTO Users(fname, lname, email, username, bday, is_active, `password`) ";
-        $query .= "VALUES(:fname, :lname, :email, :username, :bday, :is_active, :pass)";
-        $stmt = $db->prepare($query);
-        $r = $stmt->execute($reg_arr);
-        $e = $stmt->errorInfo();
-        if ($e[0] == "00000") {
-            echo "Registration successful";
-        }
-        else {
-            echo "something went wrong";
-        }
-/*          $connection = new AMQPStreamConnection($BROKER_HOST, $BROKER_PORT, $USER, $PASSWORD, $VHOST);
-            $channel = $connection->channel();
-            $channel->queue_declare($QUEUE, false, true, false, false);
-            $channel->exchange_declare($EXCHANGE, AMQPExchangeType::DIRECT, false, true, false);
-            $channel->queue_bind($QUEUE, $EXCHANGE);
-
-            $messageBody = json_encode($reg_arr, JSON_PRETTY_PRINT);
-            $message = new AMQPMessage($messageBody, array('content_type' => 'application/json', 'delievery_mode' => AMQPMessage::DELIEVERY_MODE_PERSISTENT));
-            $channel->basic_publish($message, $EXCHANGE);
-
-            $channel->close();
-            $connection->close(); */
-           
-        }
-    }
     ?>
 
 
