@@ -24,7 +24,7 @@
 	};
 
     //$channel->basic_qos(null, 1, null);
-	$channel->basic_consume('reg_queue', false, false, false, false, $callback);
+	$channel->basic_consume('reg_queue', '', false, true, false, false, $callback);
 
 /* 	function shutdown($channel, $connection) {
 		$channel->close();
