@@ -17,7 +17,7 @@
 
 	$callback = function($message) {
         echo "Message received... \n";
-		echo json_decode($message->body, true);
+		echo $message->body;
 		echo "\n------\n";
         echo "**Sending message back\n";
 		//$message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
