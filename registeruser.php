@@ -3,7 +3,7 @@
 
 require_once(__DIR__ . "/vendor/autoload.php");
 //include(__DIR__ . "/config_rmq.php");
-use PhpAmqpLib\Connection\AMQPConnection;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 
 if (isset($_POST["submit"])) {
@@ -95,7 +95,7 @@ if (isset($_POST["submit"])) {
     
 
         $messageBody = json_encode($_POST);
-        $message = new AMQPMessage($messageBody, array('content_type' => 'application/json', 'delievery_mode' => AMQPMessage::DELIEVERY_MODE_PERSISTENT));
+        $message = new AMQPMessage($messageBody);
         $channel->basic_publish($message, '', 'reg_queue');
 
         $channel->close();

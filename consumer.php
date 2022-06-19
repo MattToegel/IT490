@@ -1,7 +1,7 @@
 <?php
     require_once(__DIR__ . "/vendor/autoload.php");
     //include(__DIR__ . "/config_rmq.php");
-    use PhpAmqpLib\Connection\AMQPConnection;
+    use PhpAmqpLib\Connection\AMQPStreamConnection;
     //use PhpAmqpLib\Exchange\AMQPExchangeType;
     require_once(__DIR__ . "/lib/helpers.php");
 
@@ -20,10 +20,10 @@
 		echo json_decode($message->body, true);
 		echo "\n------\n";
         echo "**Sending message back\n";
-		$message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
+		//$message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
 	};
 
-    $channel->basic_qos(null, 1, null);
+    //$channel->basic_qos(null, 1, null);
 	$channel->basic_consume('reg_queue', false, false, false, false, $callback);
 
 /* 	function shutdown($channel, $connection) {
@@ -32,7 +32,7 @@
 	} */
 
 	//register_shutdown_function('shutdown', $channel, $connection);
-    while(count($channel->callbacks)) {
+    while($channel->is_open()) {
         $channel->wait();
     }
 	
