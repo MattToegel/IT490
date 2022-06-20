@@ -79,6 +79,12 @@ if (isset($_POST["submit"])) {
             ":type" => $type
         );
 
+        echo var_dump($_POST);
+        echo "\n\n----\n";
+        echo var_dump($reg_arr);
+        $test = json_encode($reg_arr);
+        echo var_dump($test);
+
         /* $db = getDB();
         $query = "INSERT INTO Users(fname, lname, email, username, bday, is_active, `password`) ";
         $query .= "VALUES(:fname, :lname, :email, :username, :bday, :is_active, :pass)";
