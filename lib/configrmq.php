@@ -1,5 +1,5 @@
 <?php
-$brokerhost = "192.168.1.105";
+$brokerhost = "localhost";
 $brokerport = 5672;
 $brokeruser = "smit";
 $brokerpass = "P@78word";

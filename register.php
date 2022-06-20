@@ -37,7 +37,7 @@
 <div class="container">
     
 <div id="r-form">
-    <form method="post" id="reg-test" action="registeruser.php">
+    <form method="post" id="reg-test" action="rpc_producer.php">
         <label for="fname">First Name</label>
         <input type="text" id="fname" name="fname" value="<?php if (!isset($_POST["fname"])) {
             echo '';
