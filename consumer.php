@@ -24,19 +24,28 @@
 		echo $data[":email"];
         echo "**Adding record to DB\n";
 		//$message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
-		/* $db = getDB();
+		$params = array(
+			":fname" => $data[":fname"],
+			":lname" => $data[":lname"],
+			":email" => $data[":email"],
+			":username" => $data["username"],
+			":bday" => $data[":bday"],
+			":is_active" => $data[":is_active"],
+			":password" => $data[":pass"]
+		);
+		$type = $data[":type"];
+		$db = getDB();
 		$query = "INSERT INTO Users(fname, lname, email, username, bday, is_active, `password`) ";
 		$query .= "VALUES(:fname, :lname, :email, :username, :bday, :is_active, :password)";
 		$stmt = $db->prepare($query);
-		$params = json_decode($message);
 		$r = $stmt->execute($params);
 		$e = $stmt->errorInfo();
 		if ($e[0] == "00000") {
-			echo "Registration Successful";
+			echo "\n\nRegistration Successful";
 		}
 		else {
 			echo "There was a problem with registration";
-		} */
+		}
 	};
 
     //$channel->basic_qos(null, 1, null);
