@@ -83,7 +83,7 @@ if (isset($_POST["submit"])) {
 
     if ($isValid) {
         $db = getDB();
-        echo "is valid";
+//        echo "is valid";
         if (isset($db)) {
             $query = "SELECT * FROM Users WHERE email = :user_email OR username = :user_email AND `is_active` = 1";
             $stmt = $db->prepare($query);
@@ -105,6 +105,9 @@ if (isset($_POST["submit"])) {
                         set_sess_var("id", $result["id"]);
                         header("Location:home.php");
                     }
+			else {
+				echo "Wrong username or password";
+			}
                 }
             }
         }

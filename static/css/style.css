@@ -18,23 +18,33 @@ input[type=submit] {
 .container {
     background-color: #f1f1f1;
     padding: 10px;
-    position: center;
+    position: relative;
 }
 
 /* Style the navbar */
-.navbar-nav {
+.navbar-nav{
     position: absolute;
     right: 0;
 }
-
-.nav-link {
+.nav-link{
     font-family: "Bodoni MT";
     color: white;
     font-size: 20px;
 }
-
-.navbar-brand {
+.navbar-brand{
     font-family: "Playfair";
     color: black;
     font-size: 36px;
+}
+p{
+    font-family: "Playfair";
+    color: black;
+    font-size: 24px;
+}
+
+button{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: green;
 }
