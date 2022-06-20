@@ -20,7 +20,7 @@
         echo "Message received... \n";
 		//echo $message->body;
 		echo "\n------\n";
-		echo json_decode($message->body);
+		echo $message->body;
         echo "**Adding record to DB\n";
 		//$message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
 		/* $db = getDB();
