@@ -82,8 +82,7 @@ if (isset($_POST["submit"])) {
         echo var_dump($_POST);
         echo "\n\n----\n";
         echo var_dump($reg_arr);
-        $test = json_encode($reg_arr);
-        echo var_dump($test);
+        
 
         /* $db = getDB();
         $query = "INSERT INTO Users(fname, lname, email, username, bday, is_active, `password`) ";
@@ -102,7 +101,7 @@ if (isset($_POST["submit"])) {
         $channel->queue_declare('reg_queue', false, false, false, false);
     
 
-        $messageBody = json_encode($_POST);
+        $messageBody = json_encode($reg_arr);
         $message = new AMQPMessage($messageBody);
         $channel->basic_publish($message, '', 'reg_queue');
 
