@@ -21,7 +21,7 @@
 		//echo $message->body;
 		echo "\n------\n";
 		$data = json_decode($message->body, true);
-		echo var_dump($data);
+		echo data[":email"];
         echo "**Adding record to DB\n";
 		//$message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
 		/* $db = getDB();
