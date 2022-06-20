@@ -1,6 +1,6 @@
 
 <?php
-
+require_once(__DIR__ . "lib/configrmq.php");
 require_once(__DIR__ . "/vendor/autoload.php");
 //include(__DIR__ . "/config_rmq.php");
 use PhpAmqpLib\Connection\AMQPStreamConnection;
@@ -14,6 +14,7 @@ if (isset($_POST["submit"])) {
     $bday = null;
     $pass = null;
     $pass1 = null;
+    $type = $_POST["submit"];
 
     if (isset($_POST["fname"])) {
         $fname = $_POST["fname"];
@@ -75,6 +76,7 @@ if (isset($_POST["submit"])) {
             ":bday" => $bday,
             ":is_active" => 1,
             ":pass" => $pass_hash,
+            ":type" => $type
         );
 
         /* $db = getDB();
@@ -89,7 +91,7 @@ if (isset($_POST["submit"])) {
         else {
             echo "something went wrong";
         } */
-        $connection = new AMQPStreamConnection('192.168.1.105', 5672, 'smit', 'P@78word');
+        $connection = new AMQPStreamConnection($brokerhost, $brokerport, $brokeruser, $brokerpass);
         $channel = $connection->channel();
         $channel->queue_declare('reg_queue', false, false, false, false);
     
@@ -103,6 +105,10 @@ if (isset($_POST["submit"])) {
 
 		header('Location: login.php');
            
+        }
+
+        else {
+            header('Location: register.php');
         }
     }
 
