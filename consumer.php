@@ -28,7 +28,7 @@
 			":fname" => $data[":fname"],
 			":lname" => $data[":lname"],
 			":email" => $data[":email"],
-			":username" => $data["username"],
+			":username" => $data[":username"],
 			":bday" => $data[":bday"],
 			":is_active" => $data[":is_active"],
 			":password" => $data[":pass"]
