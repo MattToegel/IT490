@@ -1,10 +1,12 @@
 <?php
 
-require_once __DIR__ . '/vendor/autoload.php';
+
+require_once(__DIR__ . '/vendor/autoload.php');
+
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 
-class FibonacciRpcClient
+class RpcClient
 {
     private $connection;
     private $channel;
@@ -14,14 +16,15 @@ class FibonacciRpcClient
 
     public function __construct()
     {
+        require_once(__DIR__ . '/lib/configrmq.php');
         $this->connection = new AMQPStreamConnection(
-            'localhost',
-            5672,
-            'smit',
-            'P@78word'
+            $brokerhost,
+            $brokerport,
+            $brokeruser,
+            $brokerpass
         );
         $this->channel = $this->connection->channel();
-        list($this->callback_queue, ,) = $this->channel->queue_declare(
+        list($this->callback_queue,,) = $this->channel->queue_declare(
             "",
             false,
             false,
@@ -49,7 +52,7 @@ class FibonacciRpcClient
         }
     }
 
-    public function call($n)
+    public function call($n, $queue_name)
     {
         $this->response = null;
         $this->corr_id = uniqid();
@@ -61,16 +64,17 @@ class FibonacciRpcClient
                 'reply_to' => $this->callback_queue
             )
         );
-        $this->channel->basic_publish($msg, '', 'reg_queue');
+        $this->channel->basic_publish($msg, '', $queue_name);
         while (!$this->response) {
             $this->channel->wait();
         }
+
         return $this->response;
     }
+
+    public function quit()
+    {
+        $this->connection->close();
+        $this->channel->close();
+    }
 }
-
-$fibonacci_rpc = new FibonacciRpcClient();
-$response = $fibonacci_rpc->call($_POST);
-
-echo ' [.] Got ', $response, "\n";
-?>
