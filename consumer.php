@@ -3,6 +3,7 @@
     require_once(__DIR__ . "/vendor/autoload.php");
 
     use PhpAmqpLib\Connection\AMQPStreamConnection;
+	use PhpAmqpLib\Message\AMQPMessage;
     //use PhpAmqpLib\Exchange\AMQPExchangeType;
     require_once(__DIR__ . "/lib/helpers.php");
 
@@ -40,12 +41,22 @@
 		$stmt = $db->prepare($query);
 		$r = $stmt->execute($params);
 		$e = $stmt->errorInfo();
+		$response = null;
 		if ($e[0] == "00000") {
-			echo "\n\nRegistration Successful";
+			$response = array(
+				'msg' => 'Registration Successful'
+			);
 		}
 		else {
-			echo "There was a problem with registration";
+			$response = array(
+				'msg' => 'There was a problem with registration'
+			);
 		}
+		$msg = new AMQPMessage(json_encode($response));
+		$message->delivery_info['channel']->basic_publish($msg, '', $message->get('reply_to'));
+		$message->ack();
+		echo "\nSending message back";
+
 	};
 
     //$channel->basic_qos(null, 1, null);
@@ -60,6 +71,8 @@
     while($channel->is_open()) {
         $channel->wait();
     }
+	$channel->close();
+	$connection->close();
 	
 
 ?>
