@@ -35,18 +35,19 @@ function get_email()
     }
 }
 
-function get_party_num()
+function get_birthday()
 {
-    if (isset($_SESSION["party_num"])) {
-        return $_SESSION["party_num"];
+    if (isset($_SESSION["bday"])) {
+        return $_SESSION["bday"];
     }
 }
 
-function get_party_id()
+function get_age()
 {
-    if (isset($_SESSION["party_id"])) {
-        return $_SESSION["party_id"];
-    }
+    $bday = get_birthday();
+    $today = date("Y-m-d");
+    $diff = date_diff(date_create($bday), date_create($today));
+    return $diff->format('%y');
 }
 
 function is_logged_in()

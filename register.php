@@ -10,29 +10,7 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg bg-primary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <img src="Logo.png" alt="Logo" height="36">&nbsp Trivia
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarText">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Signup</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <?php require_once(__DIR__ . "/partials/nav.php"); ?>
 
     <div class="container">
 
@@ -84,14 +62,7 @@
         </div>
     </div>
 
-    <footer class="py-3 my-4">
-        <ul class="nav justify-content-center border-bottom pb-3 mb-3">
-            <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Home</a></li>
-            <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Login</a></li>
-            <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Sign Up</a></li>
-        </ul>
-        <p1 class="text-center text-muted">&copy;2022 Copyright@JiaZhong</p1>
-    </footer>
+    <?php include_once(__DIR__ . "/partials/footer.php"); ?>
 
 
 
