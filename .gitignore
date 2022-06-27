@@ -1,5 +1,5 @@
 /vendor/
-config.*
+config*
 *.log
 host*
 test*
