@@ -25,11 +25,15 @@ function userLogin($n)
 	$params = array(":user_email" => $n["user_email"]);
 	$r = $stmt->execute($params);
 	$e = $stmt->errorInfo();
+	$result = $stmt->fetch(PDO::FETCH_ASSOC);
 	$response = null;
 	if ($e[0] != "00000") {
-		$response = false;
+		$response = array(
+			"status" => "error",
+			"message" => $e[2]
+		);
 	} else {
-		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+
 		if ($result && isset($result["password"]) && $result["is_active"] == 1) {
 			$password_hash = $result["password"];
 			if (password_verify($n["pass"], $password_hash)) {
@@ -42,15 +46,17 @@ function userLogin($n)
 					"id" => $result["id"],
 					"bday" => $result["bday"]
 				);
-				/* set_sess_var("fname", $result["fname"]);
-				set_sess_var("lname", $result["lname"]);
-				set_sess_var("username", $result["username"]);
-				set_sess_var("email", $result["email"]);
-				set_sess_var("id", $result["id"]);
-				header("Location:home.php");  */
 			} else {
-				$response = 1;
+				$response = array(
+					"status" => "error",
+					"message" => "Invalid password"
+				);
 			}
+		} else {
+			$response = array(
+				"status" => "error",
+				"message" => "Incorrect credentials"
+			);
 		}
 	}
 	return $response;
@@ -76,11 +82,6 @@ $callback = function ($req) {
 
 $channel->basic_qos(null, 1, null);
 $channel->basic_consume('login_queue', '', false, false, false, false, $callback);
+$channel->wait();
 
 
-while ($channel->is_open()) {
-	$channel->wait();
-}
-
-$channel->close();
-$connection->close();

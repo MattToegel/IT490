@@ -2,11 +2,8 @@
 <html lang="en">
 
 <head>
-    <title>Log In</title>
-    <meta name="description" content="test">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel="stylesheet" href="static/css/style.css">
+    <title><?php echo ucfirst(substr(basename(__FILE__), 0, -4)); ?></title>
+    <?php require_once(__DIR__ . "/partials/header.php"); ?>
 </head>
 
 <body>
@@ -53,7 +50,7 @@
                 $login_rpc = new RpcClient();
                 $response = json_decode($login_rpc->call($_POST, 'login_queue'), true);
                 echo var_dump($response);
-                if ($response == "1") {
+                if ($response["status"] == "error") {
                     echo "Login unsuccessful";
                 } else {
                     set_sess_var("fname", $response["fname"]);
