@@ -65,11 +65,4 @@ $callback = function ($req) {
 
 $channel->basic_qos(null, 1, null);
 $channel->basic_consume('reg_queue', '', false, false, false, false, $callback);
-
-
-while ($channel->is_open()) {
-	$channel->wait();
-}
-
-$channel->close();
-$connection->close();
+$channel->wait();
