@@ -15,10 +15,8 @@ $channel->queue_declare('reg_queue', false, false, false, false);
 
 function register($n)
 {
-	//$data = json_decode($n, true);
-	echo var_dump($n);
-	echo "\n**Adding record to DB\n";
-	//$message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
+	$log_file_name = "reg_consumer.log";
+	write_log("register from: " . $n['email'], $log_file_name);
 	$params = array(
 		":fname" => $n["fname"],
 		":lname" => $n["lname"],
@@ -36,11 +34,23 @@ function register($n)
 	$r = $stmt->execute($params);
 	$e = $stmt->errorInfo();
 	if ($e[0] == "00000") {
-		$response = 0;
+		$response = array(
+			"status" => "success",
+			"message" => "Record added successfully"
+		);
+		write_log("register success: " . $n["email"], $log_file_name);
 	} elseif ($e[0] == "23000") {
-		$response = 1;
+		$response = array(
+			"status" => "error",
+			"message" => "Email or username already exists"
+		);
+		write_log("register error: " . $e[2], $log_file_name);
 	} else {
-		$response = 2;
+		$response = array(
+			"status" => "error1",
+			"message" => $e[2]
+		);
+		write_log("register error: " . $e[2], $log_file_name);
 	}
 	return $response;
 }
@@ -65,4 +75,8 @@ $callback = function ($req) {
 
 $channel->basic_qos(null, 1, null);
 $channel->basic_consume('reg_queue', '', false, false, false, false, $callback);
-$channel->wait();
+while (count($channel->callbacks) || $channel->is_consuming() || $channel->is_open()) {
+	$channel->wait();
+}
+$channel->close();
+$connection->close();

@@ -1,0 +1,14 @@
+[Unit] 
+Description=RPC Service for logging in registered users to the application
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=saj39
+ExecStart=/usr/bin/env php /home/saj39/IT490-Sample/rpc_login_consumer.php
+
+[Install]
+WantedBy=multi-user.target

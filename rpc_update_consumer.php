@@ -16,9 +16,8 @@ $channel->queue_declare('update_queue', false, false, false, false);
 function userUpdate($n)
 {
 
-    echo var_dump($n);
-    echo "**Querying database\n";
-
+    $log_file_name = "update_consumer.log";
+    write_log("userUpdate from: " . $n['user_email'], $log_file_name);
     $db = getDB();
     $query = "SELECT `password` FROM Users WHERE id = :uid";
     $stmt = $db->prepare($query);
@@ -49,18 +48,20 @@ function userUpdate($n)
                 "status" => "error",
                 "message" => $e[2]
             );
+            write_log("userUpdate error: " . $e[2], $log_file_name);
         } else {
-
             $response = array(
                 "status" => "success",
                 "username" => $n["username"]
             );
+            write_log("userUpdate success: " . $n["username"], $log_file_name);
         }
     } else {
         $response = array(
             "status" => "error",
             "message" => "Invalid password"
         );
+        write_log("userUpdate error: " . "Invalid password", $log_file_name);
     }
 
     return $response;
@@ -86,6 +87,8 @@ $callback = function ($req) {
 
 $channel->basic_qos(null, 1, null);
 $channel->basic_consume('update_queue', '', false, false, false, false, $callback);
-$channel->wait();
-
-
+while (count($channel->callbacks) || $channel->is_consuming() || $channel->is_open()) {
+    $channel->wait();
+}
+$channel->close();
+$connection->close();

@@ -58,3 +58,18 @@ function is_logged_in()
         return false;
     }
 }
+
+//write logs to file
+function write_log($log_msg, $log_file)
+{
+    date_default_timezone_set('America/New_York');
+    $timestamp = date("Y-m-d H:i:s");
+    $log_dir = __DIR__ . "/../logs/";
+    if (!file_exists($log_dir)) {
+        mkdir($log_dir, 0777, true);
+    }
+    $log_path = $log_dir . $log_file;
+    $log = fopen($log_path, "a");
+    fwrite($log, "[ " . $timestamp . " ] " . $log_msg . "\n");
+    fclose($log);
+}

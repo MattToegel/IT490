@@ -153,9 +153,10 @@
             $reg_rpc = new RpcClient();
             $response = json_decode($reg_rpc->call($registration_array, 'reg_queue'), true);
             // echo var_dump($response);
-            if ($response == "0") {
+            if ($response["status"] == "success") {
                 echo "Registration Successful";
-            } elseif ($response == "1") {
+                header("Location: login.php");
+            } elseif ($response["status"] == "error") {
                 echo "Account already exists. Please log in.";
             } else {
                 echo "An error occurred during registration. Please try again";
