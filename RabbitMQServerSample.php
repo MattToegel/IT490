@@ -14,15 +14,30 @@ function register($user,$pass){
 
 
 $userfile = fopen("usernames.txt","w"); $passfile = fopen("passwords.txt","w");
+//check if username exists already
 if(strpos(file_get_contents($userfile), $user) !== false) return false;
+//check if username or password has sussy characters
+if (preg_match('/[\'^£$%&*()}{#~?><>,|=_+¬-]/', $user))
+{
+        return false;
+}
+if (preg_match('/[\'^£$%&*()}{#~?><>,|=_+¬-]/', $pass))
+{
+        return false;
+}
+//if everything is OK hash password and store hash and username in respective files
+$phash = password_hash($pass, PASSWORD_BCRYPT);
 
-fwrite($userfile, $user);
-fwrite($passfile, $pass);
+
+
+fwrite($userfile, $user + \n);
+fwrite($passfile, $phash);
 fclose($userfile);
 fclose($passfile);
 return true;
 
 }
+
 function request_processor($req){
 	echo "Received Request".PHP_EOL;
 	echo "<pre>" . var_dump($req) . "</pre>";
