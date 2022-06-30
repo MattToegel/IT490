@@ -39,7 +39,7 @@ function request_processor($req){
 		case "echo":
 			return array("return_code"=>'0', "message"=>"Echo: " .$req["message"]);
 		case "register":
-			if(register($req['username'], $req['password']) {
+			if(register($req['username'], $req['password'])) {
 			return array("return_code"=>'0', "message"=>"Server received userdata and stored it");
 			}
 			else
