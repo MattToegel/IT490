@@ -7,7 +7,7 @@ $client = new RabbitMQClient('testRabbitMQ.ini', 'testServer');
 if(isset($argv[1])){
 	if(isset($argv[3])){
 		if(strcmp($argv[3], 'register')==0){
-			$msg = array("user"=>$argv[1], "pass"=>$argv[2], "type"=>"register");
+			$msg = array("username"=>$argv[1], "password"=>$argv[2], "type"=>"register");
 }
 }
 else
