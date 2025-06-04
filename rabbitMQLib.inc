@@ -186,6 +186,7 @@ class rabbitMQClient
 	}
 	function send_request($message){
 		$uid = uniqid();
+		var_dump($json_message);
 		$json_message = json_encode($message);
 		try{
 			$this->response_queue[$uid] = null;
@@ -199,7 +200,7 @@ class rabbitMQClient
 			);
 
 			echo "sending message\n";
-
+			
 			$this->channel->basic_publish($msg, '', $this->queue);
 			$this->response_queue[$uid] = "waiting";
 			while($this->response_queue[$uid] === "waiting"){
