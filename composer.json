@@ -1,10 +1,10 @@
 {
     "name": "matt/it490",
-    "type": "Something-Fun",
+    "type": "hello-there",
     "authors": [
         {
-            "name": "MattToegel",
-            "email": "matthew.toegel@njit.edu"
+            "name": "Light1996",
+            "email": "nss63@njit.edu"
         }
     ],
     "require": {
